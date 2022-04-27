@@ -113,7 +113,8 @@ contract CrowdFund is UsingTellor {
             //total donations += donation amount
             belovedProject.totalDonation += _donation;
         //transferFrom donation amount to this contract
-        token.transfer(address(this), _donation);
+        token.approve(address(this), _donation);
+        token.transferFrom(msg.sender, address(this), _donation);
 
         //emit Donation event
         emit Donation(msg.sender, _donation);
