@@ -68,14 +68,14 @@ contract CrowdFund is UsingTellor {
 
             token = IERC20(_token);
             autoPay = IAutoPay(_autoPay);
-            queryType = "detailing request for funding at URI: ";
+            queryType = "AccountabilityCheck";
 
     }
 
     //artist proposes funding and scedules Tellor oracle accountability check-ins
     function requestFunding(string memory _agreementURI) external {
 
-        bytes memory queryData = abi.encodePacked(queryType, _agreementURI);
+        bytes memory queryData = abi.encode(queryType, abi.encode(_agreementURI));
         //generate Tellor query id
         bytes32 queryId = keccak256(
             abi.encode(queryData)
