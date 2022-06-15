@@ -108,7 +108,7 @@ contract CrowdFund is UsingTellor {
                 0 //price threshold (set to 0 b/c this is not a price feed!)
             ));
 
-        autoPay.fundFeed(feedId, queryId, 5**18);
+        autoPay.fundFeed(feedId, queryId, 5**18); //fund feed with 5 TRB
 
         //emit AgreementOpened event
         emit FundingRequest(msg.sender, queryId, _agreementURI);
@@ -135,8 +135,9 @@ contract CrowdFund is UsingTellor {
     function defaultArtist(address _artist) external {
 
         //read tellor oracle on Agreement's query Id
-        (bool success, bytes memory keptCommitment, uint timestamp) = getCurrentValue(
-            agreements[_artist].queryId
+        (bool success, bytes memory keptCommitment, uint timestamp) = getDataBefore(
+            agreements[_artist].queryId,
+            block.timestamp - 12 hours
         );
         //require tellor oracle believes artist didn't deliver
         require(success);
@@ -163,10 +164,11 @@ contract CrowdFund is UsingTellor {
     //artist withdraws funds they've earned in protocol
     function claimFunding() external {
         //read tellor oracle on Agreement's query Id
-        (bool success, bytes memory keptCommitment, uint timestamp) = getCurrentValue(
-            agreements[msg.sender].queryId
+        (bool success, bytes memory keptCommitment, uint timestamp) = getDataBefore(
+            agreements[msg.sender].queryId,
+            block.timestamp - 12 hours
         );
-        //require tellor oracle believes artist has de
+        //require tellor oracle believes artist has delivered
         require(success);
         require(timestamp - block.timestamp <= 86400*3);
         require(keccak256(keptCommitment) == keccak256("1"), "artist should be defaulted");
