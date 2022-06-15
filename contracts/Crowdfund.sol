@@ -95,8 +95,20 @@ contract CrowdFund is UsingTellor {
         //append Agreement struct to list of agreements
         artists.push(msg.sender);
 
-        //tip Tellor
-        autoPay.setupDataFeed(address(token), queryId, 10**17, block.timestamp, 86400*3, 86400, queryData);
+        //set up the schedule of tips for your tellor price feed
+        autoPay.setupDataFeed(queryId, 10**17, block.timestamp, 86400*3, 86400, 0, queryData);
+
+        bytes32 feedId = keccak256(
+            abi.encode(
+                queryId, //queryId (created above)
+                10**17, //reward per submission (.1 TRB)
+                block.timestamp, //when we start tipping (we'll start now)
+                86400*3, //interval between windows for reporters to claim tips (3 days)
+                86400, //window per interval to claim tips (1 day)
+                0 //price threshold (set to 0 b/c this is not a price feed!)
+            ));
+
+        autoPay.fundFeed(feedId, queryId, 5**18);
 
         //emit AgreementOpened event
         emit FundingRequest(msg.sender, queryId, _agreementURI);
